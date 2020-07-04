@@ -8,4 +8,4 @@ Resources:
       #Get it from the console every region has a different id
       ImageId: ami-0a243dbef00e96192
       InstanceType: t2.micro 
-      KeyName: cfn-key-1
+      KeyName: cfn-key-2
