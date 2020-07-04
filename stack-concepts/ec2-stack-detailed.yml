@@ -1,0 +1,15 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: a detailed ec2 stack for training  
+
+Resources:
+  DevEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: cfn-key-1
+      ImageId: ami-0a243dbef00e96192
+      InstanceType: t2.micro
+      SecurityGroups: 
+        - default
+      Tags:
+        - Key: Name
+          Value: cloudformation-training-instance
