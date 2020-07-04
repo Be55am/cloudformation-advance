@@ -2,6 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: a detailed ec2 stack for training  
 
 Resources:
+
   DevEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -9,7 +10,17 @@ Resources:
       ImageId: ami-0a243dbef00e96192
       InstanceType: t2.micro
       SecurityGroups: 
-        - default
+        - !Ref SSHSecurityGroup #a function that refers to that resource or a parameter value
       Tags:
         - Key: Name
           Value: cloudformation-training-instance
+  
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:  security group allow ssh port only
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0 #all the internet
