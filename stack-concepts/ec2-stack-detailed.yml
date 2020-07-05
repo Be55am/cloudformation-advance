@@ -2,10 +2,32 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: a detailed ec2 stack for training  
 
 Parameters:
+  #SSH keys parameter will be selected from the available keys in the region
   MySSHKeyName:
     Description: Select a key name from the list
     Type: AWS::EC2::KeyPair::KeyName
+    Default: cfn-key-1
+  
+  AvailabilityZone: # availability zone can be selected are a and b
+    Description: Select an availability Zone
+    Type: String
+    Default: us-west-2a
+    AllowedValues:
+      - us-west-2a
+      - us-west-2b
+  
+  # this parameter should be added in the parameter store usually ssm types are used for sensitive data
+  # to create one go to System Manager > Parameters Store and add a new One.
+  #MyInstanceType:
+  #  Description: Select an Instance Type from SSM (enter the param name)
+  #  Type: AWS::SSM::Parameter::Value<String>
 
+Mappings:
+  MyRegionMap: # Map Name
+    us-east-2: # Top level key
+      HVM64: ami-0a243dbef00e96192 # second level key
+    us-west-2:
+      HVM64: ami-0a243dbef00e96192
 
 Resources:
 
@@ -13,10 +35,14 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       KeyName: !Ref MySSHKeyName
-      ImageId: ami-0a243dbef00e96192
-      InstanceType: t2.micro
+      ImageId: !FindInMap 
+        - MyRegionMap #Map Name
+        - !Ref 'AWS::Region' # Top level key
+        - HVM64 # second level key
+      InstanceType: t2.small
       SecurityGroups: 
         - !Ref SSHSecurityGroup #a function that refers to that resource or a parameter value
+      AvailabilityZone: !Ref AvailabilityZone
       Tags:
         - Key: Name
           Value: cloudformation-training-instance
@@ -39,3 +65,7 @@ Resources:
     Type: AWS::EC2::EIP
     Properties:
       InstanceId: !Ref DevEC2Instance
+
+Outputs:
+  MyStackRegion:
+    Value: !Ref "AWS::Region"
