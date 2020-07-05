@@ -21,14 +21,14 @@ Resources:
       GroupDescription:  security group allow ssh port only
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
+          FromPort: 22
+          ToPort: 22
           CidrIp: 0.0.0.0/0 #all the internet
         - IpProtocol: tcp
-          FromPort: '8080'
-          ToPort: '8080'
+          FromPort: 8080
+          ToPort: 8080
           CidrIp: 0.0.0.0/0
-          
+
   MyElasticIP:
     Type: AWS::EC2::EIP
     Properties:
