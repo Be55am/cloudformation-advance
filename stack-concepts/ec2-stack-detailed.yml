@@ -1,12 +1,18 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: a detailed ec2 stack for training  
 
+Parameters:
+  MySSHKeyName:
+    Description: Select a key name from the list
+    Type: AWS::EC2::KeyPair::KeyName
+
+
 Resources:
 
   DevEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      KeyName: cfn-key-1
+      KeyName: !Ref MySSHKeyName
       ImageId: ami-0a243dbef00e96192
       InstanceType: t2.micro
       SecurityGroups: 
