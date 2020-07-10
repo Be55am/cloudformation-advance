@@ -7,7 +7,15 @@ Parameters:
     Description: Select a key name from the list
     Type: AWS::EC2::KeyPair::KeyName
     Default: cfn-key-1
-  
+
+  EnvironmentName:
+    Description: select the deployment environment
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+
   AvailabilityZone: # availability zone can be selected are a and b
     Description: Select an availability Zone
     Type: String
@@ -29,6 +37,12 @@ Mappings:
     us-west-2:
       HVM64: ami-0a243dbef00e96192
 
+  MyEnvironmentMap:
+    dev: 
+      instanceType: t2.micro
+    prod:
+      instanceType: t2.small
+
 Resources:
 
   DevEC2Instance:
@@ -39,7 +53,10 @@ Resources:
         - MyRegionMap #Map Name
         - !Ref 'AWS::Region' # Top level key
         - HVM64 # second level key
-      InstanceType: t2.small
+      InstanceType: !FindInMap 
+        - MyEnvironmentMap
+        - !Ref EnvironmentName
+        - instanceType
       SecurityGroups: 
         - !Ref SSHSecurityGroup #a function that refers to that resource or a parameter value
       AvailabilityZone: !Ref AvailabilityZone
@@ -69,3 +86,5 @@ Resources:
 Outputs:
   MyStackRegion:
     Value: !Ref "AWS::Region"
+  PublicIp: # getting the public ip address of the instance
+    Value: !GetAtt DevEC2Instance.PublicIp
