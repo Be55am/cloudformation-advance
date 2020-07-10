@@ -43,9 +43,11 @@ Mappings:
     prod:
       instanceType: t2.small
 
-Resources:
+Conditions:
+  CreateEIPForProd: !Equals [!Ref EnvironmentName, prod]
 
-  DevEC2Instance:
+Resources:
+  MyVMInstanceTest:
     Type: AWS::EC2::Instance
     Properties:
       KeyName: !Ref MySSHKeyName
@@ -80,11 +82,12 @@ Resources:
 
   MyElasticIP:
     Type: AWS::EC2::EIP
+    Condition: CreateEIPForProd
     Properties:
-      InstanceId: !Ref DevEC2Instance
+      InstanceId: !Ref MyVMInstanceTest
 
 Outputs:
   MyStackRegion:
     Value: !Ref "AWS::Region"
   PublicIp: # getting the public ip address of the instance
-    Value: !GetAtt DevEC2Instance.PublicIp
+    Value: !GetAtt MyVMInstanceTest.PublicIp
