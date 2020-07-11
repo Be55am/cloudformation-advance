@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: EC2 CREATION TEMPLATE EXAMPLE
+Description: This stack depends on the other stack (detailed stack ) resources (SG and AZ)
 
 Resources: 
   DevEC2Instance:
@@ -9,3 +9,6 @@ Resources:
       ImageId: ami-0a243dbef00e96192
       InstanceType: t2.micro 
       KeyName: cfn-key-2
+      SecurityGroups:
+        - !ImportValue ec2-detailed-SSHSecurityGroup
+      AvailabilityZone: !ImportValue ec2-detailed-InstanceAZ
