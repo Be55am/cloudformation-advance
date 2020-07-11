@@ -143,3 +143,8 @@ Outputs:
     Value: !Ref SSHSecurityGroup
     Export: 
       Name: !Sub "${AWS::StackName}-SSHSecurityGroup" 
+  MyDevSecurityGroup:
+    Description: Prod Or Dev Security Group
+    Value:  !If [CreateProdSecurityGroup, !Ref ProdSecurityGroup, !Ref DevSecurityGroup]
+    Export:
+      Name: ExposedSecurityGroup
