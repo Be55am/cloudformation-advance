@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: a detailed ec2 stack for training  
-
+#PARAMS###################################################################################################
 Parameters:
   #SSH keys parameter will be selected from the available keys in the region
   MySSHKeyName:
@@ -30,6 +30,7 @@ Parameters:
   #  Description: Select an Instance Type from SSM (enter the param name)
   #  Type: AWS::SSM::Parameter::Value<String>
 
+#MAPS##########################################################################################################
 Mappings:
   MyRegionMap: # Map Name
     us-east-2: # Top level key
@@ -42,10 +43,11 @@ Mappings:
       instanceType: t2.micro
     prod:
       instanceType: t2.small
-
+#CONDITIONS####################################################################################################
 Conditions:
   CreateEIPForProd: !Equals [!Ref EnvironmentName, prod]
-
+  CreateProdSecurityGroup: !Equals [!Ref EnvironmentName, prod]
+#RESOURCES#####################################################################################################
 Resources:
   MyVMInstanceTest:
     Type: AWS::EC2::Instance
@@ -60,7 +62,9 @@ Resources:
         - !Ref EnvironmentName
         - instanceType
       SecurityGroups: 
+        - !If [CreateProdSecurityGroup, !Ref ProdSecurityGroup, !Ref 'AWS::NoValue'] #if condition is true associate SG else NoValue
         - !Ref SSHSecurityGroup #a function that refers to that resource or a parameter value
+
       AvailabilityZone: !Ref AvailabilityZone
       Tags:
         - Key: Name
@@ -80,12 +84,27 @@ Resources:
           ToPort: 8080
           CidrIp: 0.0.0.0/0
 
+  ProdSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: CreateProdSecurityGroup
+    Properties:
+      GroupDescription: Security group for prod environment only
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Security Group For Prod only port 80
+
   MyElasticIP:
     Type: AWS::EC2::EIP
     Condition: CreateEIPForProd
     Properties:
       InstanceId: !Ref MyVMInstanceTest
 
+#OUTPUTS######################################################################################################
 Outputs:
   MyStackRegion:
     Value: !Ref "AWS::Region"
