@@ -129,3 +129,6 @@ Outputs:
     Value: !Ref "AWS::Region"
   PublicIp: # getting the public ip address of the instance
     Value: !GetAtt MyVMInstanceTest.PublicIp
+  MyinstanceId:
+    Value: !Ref MyVMInstanceTest
+    Description: My EC2 id 
