@@ -3,18 +3,20 @@ Description: a detailed ec2 stack for training
 #PARAMS###################################################################################################
 Parameters:
   #SSH keys parameter will be selected from the available keys in the region
-  MySSHKeyName:
-    Description: Select a key name from the list
-    Type: AWS::EC2::KeyPair::KeyName
-    Default: cfn-key-1
+  # MySSHKeyName:
+  #   Description: Select a key name from the list
+  #   Type: AWS::EC2::KeyPair::KeyName
+  #   Default: cfn-key-1
 
   EnvironmentName:
     Description: select the deployment environment
     Type: String
     Default: dev
+    ConstraintDescription: must be dev or prod or qa
     AllowedValues:
       - dev
       - prod
+      - qa
 
   AvailabilityZone: # availability zone can be selected are a and b
     Description: Select an availability Zone
@@ -47,12 +49,14 @@ Mappings:
 Conditions:
   CreateEIPForProd: !Equals [!Ref EnvironmentName, prod]
   CreateProdSecurityGroup: !Equals [!Ref EnvironmentName, prod]
+  CreateDevSecurityGroup: !Not [{Condition: CreateProdSecurityGroup}] # if Not CreateproduSecurityGroup
+  IfRegionUsekeyName: !Or [!Equals [!Ref 'AWS::Region', 'us-east-2'], !Equals [!Ref 'AWS::Region', 'us-west-2']]
 #RESOURCES#####################################################################################################
 Resources:
   MyVMInstanceTest:
     Type: AWS::EC2::Instance
     Properties:
-      KeyName: !Ref MySSHKeyName
+      KeyName: !If [IfRegionUsekeyName, cfn-key-1, cfn-key-2] # if this condition returns true use key1 else use key2
       ImageId: !FindInMap 
         - MyRegionMap #Map Name
         - !Ref 'AWS::Region' # Top level key
@@ -63,6 +67,7 @@ Resources:
         - instanceType
       SecurityGroups: 
         - !If [CreateProdSecurityGroup, !Ref ProdSecurityGroup, !Ref 'AWS::NoValue'] #if condition is true associate SG else NoValue
+        - !If [CreateDevSecurityGroup, !Ref DevSecurityGroup, !Ref 'AWS::NoValue']
         - !Ref SSHSecurityGroup #a function that refers to that resource or a parameter value
 
       AvailabilityZone: !Ref AvailabilityZone
@@ -93,6 +98,20 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Security Group For Prod only port 80
+
+  DevSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: CreateDevSecurityGroup
+    Properties:
+      GroupDescription: Security group for prod environment only
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 81
+          ToPort: 81
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
