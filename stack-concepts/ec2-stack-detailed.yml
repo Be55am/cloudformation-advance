@@ -132,3 +132,14 @@ Outputs:
   MyinstanceId:
     Value: !Ref MyVMInstanceTest
     Description: My EC2 id 
+  MyInstanceAvailabilityZone:
+    Description: Instance Availability Zone
+    Value: !GetAtt MyVMInstanceTest.AvailabilityZone
+    Export: 
+      Name: !Sub "${AWS::StackName}-InstanceAZ" # Substitute the name with StackName + '-InstanceAZ'
+
+  MyInstanceSecurityGroup:
+    Description: SSH Security Group
+    Value: !Ref SSHSecurityGroup
+    Export: 
+      Name: !Sub "${AWS::StackName}-SSHSecurityGroup" 
