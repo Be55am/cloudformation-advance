@@ -74,6 +74,18 @@ Resources:
       Tags:
         - Key: Name
           Value: cloudformation-training-instance
+      UserData: 
+        Fn::Base64: |
+          #!/bin/bash
+          sudo yum -y update 
+          sudo yum -y install java-1.8.0-openjdk.x86_64
+          sudo yum -y install java-1.8.0-openjdk-devel
+          sudo yum -y install tomcat8
+          sudo service tomcat8 start
+          sudo mkdir /usr/share/tomcat8/webapps/ROOT
+          sudo touch /usr/share/tomcat8/webapps/ROOT/index.html
+          sudo su
+          sudo echo "Hello from cloud formation Tomcat8" > /usr/share/tomcat8/webapps/ROOT/index.html
   
   SSHSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -154,6 +166,10 @@ Outputs:
     Value: !GetAtt MyVMInstanceTest.AvailabilityZone
     Export: 
       Name: !Sub "${AWS::StackName}-InstanceAZ" # Substitute the name with StackName + '-InstanceAZ'
+
+  AppUrl:
+    Description: My Tomcat Output Url
+    Value: !Sub "http://${MyVMInstanceTest.PublicDnsName}:8080/index.html"
 
   MyInstanceSecurityGroup:
     Description: SSH Security Group
