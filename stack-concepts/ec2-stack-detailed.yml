@@ -122,6 +122,23 @@ Resources:
     Condition: CreateEIPForProd
     Properties:
       InstanceId: !Ref MyVMInstanceTest
+#METADATA#####################################################################################################
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "EC2 Instance Configuration"
+        Parameters:
+      #  - EnvironmentName
+          - AvailabilityZone
+      - Label:
+          default: "Environment Configuration"
+        Parameters:
+          - EnvironmentName
+    ParameterLabels:
+      EnvironmentName:
+        default: "Which environment you are trying to create this instance for ?"
+
 
 #OUTPUTS######################################################################################################
 Outputs:
